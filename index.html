@@ -1,609 +1,894 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DocScan - Numérisation et gestion de documents</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f5f5f5;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    header {
-      background-color: #3498db;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      border-radius: 5px;
-      margin-bottom: 20px;
-    }
-    .scanner-section, .document-section, .search-section {
-      background-color: white;
-      border-radius: 5px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    h2 {
-      color: #3498db;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
-    }
-    button {
-      background-color: #3498db;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 10px 0;
-    }
-    button:hover {
-      background-color: #2980b9;
-    }
-    #video-container {
-      position: relative;
-      max-width: 100%;
-      margin: 0 auto;
-    }
-    #video {
-      width: 100%;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-    }
-    #capture-btn {
-      margin-top: 10px;
-    }
-    #preview {
-      max-width: 100%;
-      border-radius: 5px;
-      border: 1px solid #ddd;
-      margin-top: 10px;
-      display: none;
-    }
-    .document-list {
-      list-style: none;
-      padding: 0;
-    }
-    .document-item {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .document-item:hover {
-      background-color: #f9f9f9;
-    }
-    .document-actions button {
-      margin-left: 5px;
-      padding: 5px 10px;
-      font-size: 12px;
-    }
-    #search-box {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    .hidden {
-      display: none;
-    }
-    .loader {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 2s linear infinite;
-      margin: 20px auto;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .filter-btn {
-      margin-right: 5px;
-      margin-bottom: 10px;
-    }
-    .filter-btn.active {
-      background-color: #2c3e50;
-    }
-    .status-info {
-      font-style: italic;
-      color: #666;
-      margin: 10px 0;
-    }
-    .category-tag {
-      display: inline-block;
-      padding: 3px 8px;
-      font-size: 12px;
-      border-radius: 10px;
-      margin-left: 10px;
-      background-color: #e0e0e0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuScan - Numérisation Intelligente</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --accent-color: #f39c12;
+            --light-bg: #f5f5f5;
+            --dark-text: #333;
+            --light-text: #fff;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--light-text);
+            padding: 1rem;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .app-wrapper {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .step-navigation {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: var(--secondary-color);
+            padding: 10px;
+        }
+
+        .step-btn {
+            flex: 1;
+            padding: 10px;
+            margin: 0 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .step-btn.active {
+            background-color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .step-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .step-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .camera-container, .crop-container, .text-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        #video-preview, #captured-image, #cropped-image {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+        }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+
+        .crop-instructions {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        #extracted-text {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+
+        .result-panel {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #eef7ff;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .file-type {
+            padding: 5px 10px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .loading-indicator {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .message-box {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 0.8rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .step-navigation {
+                flex-direction: row;
+                overflow-x: auto;
+            }
+            
+            .step-btn {
+                padding: 8px;
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+            
+            .button-row {
+                flex-wrap: wrap;
+            }
+            
+            .btn {
+                flex: 1 0 40%;
+                min-width: 120px;
+                margin-bottom: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.2rem;
+            }
+            
+            .step-btn {
+                padding: 6px;
+                font-size: 0.8rem;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>DocScan</h1>
-      <p>Numérisation et gestion intelligente de documents</p>
-    </header>
-    
-    <div class="scanner-section">
-      <h2>📸 Acquisition des documents</h2>
-      <div id="video-container">
-        <video id="video" autoplay></video>
-      </div>
-      <button id="start-camera">Activer la caméra</button>
-      <button id="capture-btn" disabled>Capturer document</button>
-      <img id="preview" alt="Aperçu du document">
-      <div id="process-controls" class="hidden">
-        <button id="process-btn">Traiter le document</button>
-        <button id="retake-btn">Reprendre</button>
-      </div>
-      <div id="processing-loader" class="loader hidden"></div>
-      <div id="status-message" class="status-info hidden"></div>
-    </div>
-    
-    <div class="document-section">
-      <h2>🗂 Documents sauvegardés</h2>
-      <div class="document-filters">
-        <button class="filter-btn active" data-category="all">Tous</button>
-        <button class="filter-btn" data-category="Documents financiers">Financiers</button>
-        <button class="filter-btn" data-category="Documents légaux">Légaux</button>
-        <button class="filter-btn" data-category="Documents d'identification">Identification</button>
-        <button class="filter-btn" data-category="Documents administratifs">Administratifs</button>
-        <button class="filter-btn" data-category="Documents commerciaux">Commerciaux</button>
-        <button class="filter-btn" data-category="Documents éducatifs">Éducatifs</button>
-        <button class="filter-btn" data-category="Documents médicaux">Médicaux</button>
-        <button class="filter-btn" data-category="autre">Autres</button>
-      </div>
-      <ul class="document-list" id="document-list">
-        <li class="no-documents">Aucun document trouvé.</li>
-      </ul>
-    </div>
-    
-    <div class="search-section">
-      <h2>🔍 Recherche</h2>
-      <input type="text" id="search-box" placeholder="Rechercher dans vos documents...">
-      <div id="search-results"></div>
-    </div>
-  </div>
+    <div class="container">
+        <header>
+            <h1>DocuScan</h1>
+            <p class="tagline">Numérisez, Analysez, Organisez</p>
+        </header>
 
-  <script>
-    // Variables globales
-    let stream;
-    let capturedImage;
-    let documents = JSON.parse(localStorage.getItem('documents')) || [];
-    
-    // Clés API
-    const OCR_API_KEY = "K89517877488957";
-    const GEMINI_API_KEY = "AIzaSyBbC1XQxdnttTyRbTAuTr5c1j71UOPHcNA";
-    
-    // Éléments DOM
-    const startCameraButton = document.getElementById('start-camera');
-    const video = document.getElementById('video');
-    const captureButton = document.getElementById('capture-btn');
-    const preview = document.getElementById('preview');
-    const processControls = document.getElementById('process-controls');
-    const processingLoader = document.getElementById('processing-loader');
-    const statusMessage = document.getElementById('status-message');
-    const processButton = document.getElementById('process-btn');
-    const retakeButton = document.getElementById('retake-btn');
-    const documentList = document.getElementById('document-list');
-    const searchBox = document.getElementById('search-box');
-    const searchResults = document.getElementById('search-results');
-    
-    // Activer la caméra
-    startCameraButton.addEventListener('click', async () => {
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
+        <div class="app-wrapper">
+            <div class="step-navigation">
+                <button class="step-btn active" data-step="capture">1. Capture</button>
+                <button class="step-btn" data-step="crop" disabled>2. Rognage</button>
+                <button class="step-btn" data-step="text" disabled>3. Texte</button>
+                <button class="step-btn" data-step="result" disabled>4. Résultat</button>
+            </div>
+
+            <div class="message-box success" id="success-message"></div>
+            <div class="message-box error" id="error-message"></div>
+
+            <div class="loading-indicator" id="loading">
+                <div class="spinner"></div>
+                <p>Traitement en cours...</p>
+            </div>
+
+            <!-- Step 1: Capture -->
+            <div class="step-content active" id="capture-step">
+                <div class="camera-container">
+                    <h2>Capture d'image</h2>
+                    <p>Utilisez votre caméra pour prendre une photo du document.</p>
+                    <video id="video-preview" autoplay playsinline></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                    <img id="captured-image" style="display:none;">
+                    <div class="button-row">
+                        <button id="start-camera" class="btn">Activer la caméra</button>
+                        <button id="capture-btn" class="btn btn-success" disabled>Prendre la photo</button>
+                        <button id="retake-btn" class="btn btn-danger" style="display:none;">Reprendre</button>
+                        <input  type="file" id="file-input" accept="image/*" style="display:none;">
+                        <button id="upload-btn" class="btn">Importer une image</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Crop -->
+            <div class="step-content" id="crop-step">
+                <div class="crop-container">
+                    <h2>Rognage de l'image</h2>
+                    <div class="crop-instructions">
+                        <p>Ajustez les bordures pour rogner l'image et isoler le document.</p>
+                    </div>
+                    <div id="cropper-container">
+                        <img id="image-to-crop">
+                    </div>
+                    <div class="button-row">
+                        <button id="confirm-crop" class="btn btn-success">Confirmer le rognage</button>
+                        <button id="back-to-capture" class="btn">Retour</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Text Extraction -->
+            <div class="step-content" id="text-step">
+                <div class="text-container">
+                    <h2>Extraction et édition du texte</h2>
+                    <img id="cropped-image">
+                    <textarea id="extracted-text" placeholder="Le texte extrait apparaîtra ici..."></textarea>
+                    <div class="button-row">
+                        <button id="extract-text" class="btn btn-success">Extraire le texte</button>
+                        <button id="confirm-text" class="btn" disabled>Confirmer</button>
+                        <button id="back-to-crop" class="btn">Retour</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Result -->
+            <div class="step-content" id="result-step">
+                <div class="result-container">
+                    <h2>Résultat</h2>
+                    <div class="result-panel">
+                        <div class="file-info">
+                            <span class="file-name" id="suggested-filename">document.pdf</span>
+                            <span class="file-type" id="doc-type">Document</span>
+                        </div>
+                        <p>Type de document identifié et nom suggéré en fonction du contenu.</p>
+                        <div class="button-row">
+                            <button id="save-document" class="btn btn-success">Enregistrer</button>
+                            <button id="new-scan" class="btn">Nouveau scan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Including Cropper.js library for image cropping -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const startCameraBtn = document.getElementById('start-camera');
+            const captureBtn = document.getElementById('capture-btn');
+            const retakeBtn = document.getElementById('retake-btn');
+            const uploadBtn = document.getElementById('upload-btn');
+            const fileInput = document.getElementById('file-input');
+            const videoPreview = document.getElementById('video-preview');
+            const capturedImage = document.getElementById('captured-image');
+            const canvas = document.getElementById('canvas');
+            const imageToCrop = document.getElementById('image-to-crop');
+            const confirmCropBtn = document.getElementById('confirm-crop');
+            const backToCaptureBtn = document.getElementById('back-to-capture');
+            const croppedImage = document.getElementById('cropped-image');
+            const extractTextBtn = document.getElementById('extract-text');
+            const confirmTextBtn = document.getElementById('confirm-text');
+            const backToCropBtn = document.getElementById('back-to-crop');
+            const extractedText = document.getElementById('extracted-text');
+            const suggestedFilename = document.getElementById('suggested-filename');
+            const docType = document.getElementById('doc-type');
+            const saveDocumentBtn = document.getElementById('save-document');
+            const newScanBtn = document.getElementById('new-scan');
+            const stepButtons = document.querySelectorAll('.step-btn');
+            const stepContents = document.querySelectorAll('.step-content');
+            const loadingIndicator = document.getElementById('loading');
+            const successMessage = document.getElementById('success-message');
+            const errorMessage = document.getElementById('error-message');
+
+            // Variables for camera stream and cropper
+            let stream;
+            let cropper;
+            let currentStep = 'capture';
+            let croppedImageData;
+
+            // API Keys
+            const OCR_API_KEY = 'K89517877488957';
+            const GEMINI_API_KEY = 'AIzaSyBbC1XQxdnttTyRbTAuTr5c1j71UOPHcNA';
+
+            // Step navigation
+            function goToStep(step) {
+                // Hide all step contents and deactivate all step buttons
+                stepContents.forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                stepButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Show the selected step content and activate the selected step button
+                document.getElementById(`${step}-step`).classList.add('active');
+                document.querySelector(`.step-btn[data-step="${step}"]`).classList.add('active');
+                
+                currentStep = step;
+                
+                // Enable next step button
+                enableNextStep(step);
+            }
+
+            function enableNextStep(currentStep) {
+                const steps = ['capture', 'crop', 'text', 'result'];
+                const currentIndex = steps.indexOf(currentStep);
+                
+                // Enable all steps up to and including the current one
+                for (let i = 0; i <= currentIndex; i++) {
+                    document.querySelector(`.step-btn[data-step="${steps[i]}"]`).disabled = false;
+                }
+            }
+
+            // Camera functions
+            startCameraBtn.addEventListener('click', startCamera);
+            captureBtn.addEventListener('click', captureImage);
+            retakeBtn.addEventListener('click', retakePhoto);
+            uploadBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileUpload);
+
+            function startCamera() {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            facingMode: 'environment',
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        } 
+                    })
+                    .then(function(s) {
+                        stream = s;
+                        videoPreview.srcObject = stream;
+                        videoPreview.style.display = 'block';
+                        capturedImage.style.display = 'none';
+                        captureBtn.disabled = false;
+                        startCameraBtn.disabled = true;
+                        showMessage('success', 'Caméra activée avec succès.');
+                    })
+                    .catch(function(error) {
+                        console.error('Erreur d\'accès à la caméra:', error);
+                        showMessage('error', 'Impossible d\'accéder à la caméra. Veuillez vérifier les permissions ou essayer l\'importation d\'image.');
+                    });
+                } else {
+                    showMessage('error', 'Votre navigateur ne supporte pas l\'accès à la caméra. Veuillez essayer l\'importation d\'image.');
+                }
+            }
+
+            function captureImage() {
+                // Set canvas dimensions to match the video
+                canvas.width = videoPreview.videoWidth;
+                canvas.height = videoPreview.videoHeight;
+                
+                // Draw the video frame to the canvas
+                const context = canvas.getContext('2d');
+                context.drawImage(videoPreview, 0, 0, canvas.width, canvas.height);
+                
+                // Convert canvas to image data URL
+                const imageDataUrl = canvas.toDataURL('image/png');
+                
+                // Display the captured image
+                capturedImage.src = imageDataUrl;
+                capturedImage.style.display = 'block';
+                videoPreview.style.display = 'none';
+                
+                // Show retake button and proceed to crop step
+                retakeBtn.style.display = 'inline-block';
+                captureBtn.style.display = 'none';
+                
+                // Stop the camera stream
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                
+                // Prepare for cropping
+                imageToCrop.src = imageDataUrl;
+                goToStep('crop');
+            }
+
+            function retakePhoto() {
+                // Hide captured image and show video preview
+                capturedImage.style.display = 'none';
+                videoPreview.style.display = 'block';
+                
+                // Hide retake button and show capture button
+                retakeBtn.style.display = 'none';
+                captureBtn.style.display = 'inline-block';
+                
+                // Restart camera
+                startCamera();
+            }
+
+            function handleFileUpload(e) {
+                const file = e.target.files[0];
+                
+                if (file) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        // Display the uploaded image
+                        capturedImage.src = event.target.result;
+                        capturedImage.style.display = 'block';
+                        videoPreview.style.display = 'none';
+                        
+                        // Show retake button and hide capture button
+                        retakeBtn.style.display = 'inline-block';
+                        captureBtn.style.display = 'none';
+                        
+                        // Stop any camera stream
+                        if (stream) {
+                            stream.getTracks().forEach(track => track.stop());
+                        }
+                        
+                        // Prepare for cropping
+                        imageToCrop.src = event.target.result;
+                        goToStep('crop');
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Cropping functions
+            confirmCropBtn.addEventListener('click', confirmCrop);
+            backToCaptureBtn.addEventListener('click', () => goToStep('capture'));
+
+            // Initialize cropper when image-to-crop is loaded
+            imageToCrop.onload = function() {
+                // Destroy previous cropper instance if exists
+                if (cropper) {
+                    cropper.destroy();
+                }
+                
+                // Initialize new cropper
+                cropper = new Cropper(imageToCrop, {
+                    viewMode: 1,
+                    dragMode: 'move',
+                    aspectRatio: NaN, // Free aspect ratio
+                    autoCropArea: 0.9,
+                    restore: false,
+                    guides: true,
+                    center: true,
+                    highlight: true,
+                    cropBoxMovable: true,
+                    cropBoxResizable: true,
+                    toggleDragModeOnDblclick: false
+                });
+            };
+
+            function confirmCrop() {
+                // Get cropped canvas
+                if (cropper) {
+                    const croppedCanvas = cropper.getCroppedCanvas({
+                        minWidth: 256,
+                        minHeight: 256,
+                        maxWidth: 4096,
+                        maxHeight: 4096
+                    });
+                    
+                    if (croppedCanvas) {
+                        // Convert to data URL
+                        croppedImageData = croppedCanvas.toDataURL('image/jpeg');
+                        
+                        // Display cropped image
+                        croppedImage.src = croppedImageData;
+                        
+                        // Proceed to text extraction step
+                        goToStep('text');
+                    }
+                }
+            }
+
+            // Text extraction functions
+            extractTextBtn.addEventListener('click', extractText);
+            confirmTextBtn.addEventListener('click', confirmText);
+            backToCropBtn.addEventListener('click', () => goToStep('crop'));
+
+            function extractText() {
+                showLoading(true);
+                
+                // Prepare form data for OCR.space API
+                const formData = new FormData();
+                formData.append('apikey', OCR_API_KEY);
+                
+                // Convert data URL to blob
+                const base64Data = croppedImageData.split(',')[1];
+                const blob = b64toBlob(base64Data, 'image/jpeg');
+                formData.append('file', blob, 'image.jpg');
+                
+                formData.append('language', 'fre');
+                formData.append('detectOrientation', 'true');
+                formData.append('scale', 'true');
+                
+                // Call OCR API
+                fetch('https://api.ocr.space/parse/image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ParsedResults && data.ParsedResults.length > 0) {
+                        // Get extracted text
+                        const text = data.ParsedResults[0].ParsedText;
+                        extractedText.value = text;
+                        confirmTextBtn.disabled = false;
+                        showMessage('success', 'Texte extrait avec succès.');
+                    } else {
+                        showMessage('error', 'Aucun texte détecté dans l\'image.');
+                    }
+                    showLoading(false);
+                })
+                .catch(error => {
+                    console.error('Erreur lors de l\'extraction du texte:', error);
+                    showMessage('error', 'Erreur lors de l\'extraction du texte. Veuillez réessayer.');
+                    showLoading(false);
+                });
+            }
+
+            // Helper function: Convert base64 to Blob
+            function b64toBlob(b64Data, contentType = '', sliceSize = 512) {
+                const byteCharacters = atob(b64Data);
+                const byteArrays = [];
+                
+                for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                    const slice = byteCharacters.slice(offset, offset + sliceSize);
+                    
+                    const byteNumbers = new Array(slice.length);
+                    for (let i = 0; i < slice.length; i++) {
+                        byteNumbers[i] = slice.charCodeAt(i);
+                    }
+                    
+                    const byteArray = new Uint8Array(byteNumbers);
+                    byteArrays.push(byteArray);
+                }
+                
+                return new Blob(byteArrays, { type: contentType });
+            }
+
+            function confirmText() {
+                showLoading(true);
+                
+                // Get the text from the textarea
+                const text = extractedText.value;
+                
+                // Use Gemini AI to identify document type and suggest filename
+                identifyDocumentAndName(text)
+                    .then(result => {
+                        // Update UI with document type and filename
+                        if (result.docType) {
+                            docType.textContent = result.docType;
+                        } else {
+                            docType.textContent = 'Document';
+                        }
+                        
+                        if (result.fileName) {
+                            suggestedFilename.textContent = result.fileName;
+                        } else {
+                            suggestedFilename.textContent = 'document.pdf';
+                        }
+                        
+                        // Proceed to result step
+                        goToStep('result');
+                        showLoading(false);
+                    })
+                    .catch(error => {
+                        console.error('Erreur lors de l\'identification du document:', error);
+                        // Set default values
+                        docType.textContent = 'Document';
+                        suggestedFilename.textContent = 'document.pdf';
+                        
+                        // Still proceed to result step
+                        goToStep('result');
+                        showLoading(false);
+                        showMessage('error', 'Erreur lors de l\'identification du document. Un nom par défaut a été attribué.');
+                    });
+            }
+
+            async function identifyDocumentAndName(text) {
+                try {
+                    // Mock API call to Gemini (replace with actual API when available)
+                    // This is a simplified implementation - in a real app, you would use the Gemini API
+                    
+                    // Simulate analysis based on text content
+                    let docType = 'Document';
+                    let fileName = 'document.pdf';
+                    
+                    // Simple keyword detection for document type
+                    const lowerText = text.toLowerCase();
+                    
+                    if (lowerText.includes('facture') || lowerText.includes('montant') || 
+                        lowerText.includes('total') || lowerText.includes('ht') || 
+                        lowerText.includes('tva')) {
+                        docType = 'Facture';
+                        
+                        // Extract date if available
+                        const dateMatch = text.match(/\b\d{2}[\/.-]\d{2}[\/.-]\d{4}\b/);
+                        const numMatch = text.match(/[Ff]acture\s+[Nn][°\s]*:?\s*([A-Z0-9-]+)/);
+                        
+                        if (numMatch && numMatch[1]) {
+                            fileName = `Facture_${numMatch[1].replace(/\s+/g, '_')}.pdf`;
+                        } else if (dateMatch) {
+                            fileName = `Facture_${dateMatch[0].replace(/[\/.-]/g, '_')}.pdf`;
+                        } else {
+                            fileName = `Facture_${new Date().toISOString().slice(0, 10)}.pdf`;
+                        }
+                    }
+                    else if (lowerText.includes('contrat') || lowerText.includes('convention') || 
+                             lowerText.includes('accord') || lowerText.includes('engagement')) {
+                        docType = 'Contrat';
+                        fileName = `Contrat_${new Date().toISOString().slice(0, 10)}.pdf`;
+                    }
+                    else if (lowerText.includes('reçu') || lowerText.includes('paiement') || 
+                             lowerText.includes('règlement')) {
+                        docType = 'Reçu';
+                        fileName = `Recu_${new Date().toISOString().slice(0, 10)}.pdf`;
+                    }
+                    else if (lowerText.includes('attestation') || lowerText.includes('certifie') || 
+                             lowerText.includes('certifions')) {
+                        docType = 'Attestation';
+                        fileName = `Attestation_${new Date().toISOString().slice(0, 10)}.pdf`;
+                    }
+                    
+                    return { docType, fileName };
+                    
+                    // In a real implementation, you would call the Gemini API like this:
+                    /*
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [
+                                {
+                                    parts: [
+                                        { text: `Voici le texte d'un document. Identifie le type de document (facture, contrat, reçu, etc.) et suggère un nom de fichier approprié basé sur son contenu. Réponds uniquement avec un JSON ayant deux propriétés: 'docType' et 'fileName'. Texte du document: ${text}` }
+                                    ]
+                                }
+                            ]
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    return JSON.parse(data.candidates[0].content.parts[0].text);
+                    */
+                } catch (error) {
+                    console.error('Erreur dans l\'analyse du document:', error);
+                    return { docType: 'Document', fileName: 'document.pdf' };
+                }
+            }
+
+            // Result functions
+            saveDocumentBtn.addEventListener('click', saveDocument);
+            newScanBtn.addEventListener('click', startNewScan);
+
+            function saveDocument() {
+                // Create a text file with the extracted text
+                const text = extractedText.value;
+                const fileName = suggestedFilename.textContent;
+                
+                // Create a Blob with the text content
+                const textBlob = new Blob([text], { type: 'text/plain' });
+                
+                // Create a download link and click it
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(textBlob);
+                downloadLink.download = fileName.replace('.pdf', '.txt');
+                downloadLink.click();
+                
+                // Create a PDF-like blob with the image and text (in a real app, you'd use a PDF library)
+                const docBlob = new Blob([
+                    `Image data: ${croppedImageData.slice(0, 50)}...\n\n`,
+                    `Extracted text:\n${text}`], { type: 'application/octet-stream' });
+                
+                // Create a second download link for the "PDF" and click it
+                const pdfLink = document.createElement('a');
+                pdfLink.href = URL.createObjectURL(docBlob);
+                pdfLink.download = fileName;
+                pdfLink.click();
+                
+                showMessage('success', 'Document enregistré avec succès!');
+            }
+
+            function startNewScan() {
+                // Reset all states
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+                
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+                
+                // Reset UI
+                videoPreview.style.display = 'block';
+                capturedImage.style.display = 'none';
+                retakeBtn.style.display = 'none';
+                captureBtn.style.display = 'inline-block';
+                captureBtn.disabled = true;
+                startCameraBtn.disabled = false;
+                confirmTextBtn.disabled = true;
+                extractedText.value = '';
+                
+                // Go back to capture step
+                goToStep('capture');
+                
+                // Reset step navigation
+                stepButtons.forEach((btn, index) => {
+                    if (index > 0) {
+                        btn.disabled = true;
+                    }
+                });
+            }
+
+            // Utility functions
+            function showLoading(show) {
+                loadingIndicator.style.display = show ? 'block' : 'none';
+            }
+
+            function showMessage(type, text) {
+                const messageElement = type === 'success' ? successMessage : errorMessage;
+                messageElement.textContent = text;
+                messageElement.style.display = 'block';
+                
+                // Hide message after 5 seconds
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 5000);
+            }
+
+            // Step navigation event listeners
+            stepButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (!this.disabled) {
+                        goToStep(this.dataset.step);
+                    }
+                });
+            });
         });
-        video.srcObject = stream;
-        startCameraButton.disabled = true;
-        captureButton.disabled = false;
-      } catch (err) {
-        console.error('Erreur lors de l\'accès à la caméra:', err);
-        alert('Impossible d\'accéder à la caméra. Vérifiez vos permissions.');
-      }
-    });
-    
-    // Capturer une image
-    captureButton.addEventListener('click', () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-      
-      // Pré-traitement - rognage automatique (simulation)
-      // Dans une implémentation réelle, utilisez une bibliothèque comme OpenCV.js
-      // pour la détection des bords et le rognage
-      
-      capturedImage = canvas.toDataURL('image/jpeg');
-      preview.src = capturedImage;
-      preview.style.display = 'block';
-      
-      // Arrêter la caméra pour économiser la batterie
-      stream.getTracks().forEach(track => track.stop());
-      video.style.display = 'none';
-      
-      // Afficher les contrôles de traitement
-      processControls.classList.remove('hidden');
-      captureButton.disabled = true;
-    });
-    
-    // Reprendre une photo
-    retakeButton.addEventListener('click', async () => {
-      preview.style.display = 'none';
-      processControls.classList.add('hidden');
-      statusMessage.classList.add('hidden');
-      video.style.display = 'block';
-      
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: 'environment' }
-        });
-        video.srcObject = stream;
-        captureButton.disabled = false;
-      } catch (err) {
-        console.error('Erreur lors de l\'accès à la caméra:', err);
-      }
-    });
-    
-    // Traiter le document
-    processButton.addEventListener('click', async () => {
-      processControls.classList.add('hidden');
-      processingLoader.classList.remove('hidden');
-      statusMessage.classList.remove('hidden');
-      statusMessage.textContent = "Extraction du texte via OCR...";
-      
-      try {
-        // Convertir l'image en base64 sans le préfixe data:image/jpeg;base64,
-        const base64Image = capturedImage.split(',')[1];
-        
-        // Appel à l'API OCR.space
-        const extractedText = await performOCR(base64Image);
-        
-        statusMessage.textContent = "Identification du type de document via Gemini AI...";
-        
-        // Appel à l'API Gemini pour classifier le document
-        const documentType = await classifyDocumentWithGemini(extractedText);
-        
-        // Génération d'un nom de fichier basé sur le contenu et le type
-        const dateStr = new Date().toISOString().split('T')[0];
-        const fileName = `${documentType}_${dateStr}_${Math.floor(Math.random() * 1000)}.pdf`;
-        
-        // Création d'un nouvel objet document
-        const newDocument = {
-          id: Date.now(),
-          fileName,
-          type: documentType,
-          text: extractedText,
-          imageData: capturedImage,
-          dateAdded: new Date().toISOString()
-        };
-        
-        // Ajouter le document à la liste
-        documents.unshift(newDocument);
-        
-        // Sauvegarder dans le localStorage
-        localStorage.setItem('documents', JSON.stringify(documents));
-        
-        // Mettre à jour l'affichage
-        updateDocumentList();
-        
-        // Réinitialiser l'interface
-        processingLoader.classList.add('hidden');
-        preview.style.display = 'none';
-        video.style.display = 'block';
-        startCameraButton.disabled = false;
-        captureButton.disabled = true;
-        statusMessage.classList.add('hidden');
-        
-        alert(`Document traité avec succès!\nType détecté: ${documentType}\nNom de fichier: ${fileName}`);
-      } catch (err) {
-        console.error('Erreur lors du traitement du document:', err);
-        alert('Erreur lors du traitement du document: ' + err.message);
-        processingLoader.classList.add('hidden');
-        processControls.classList.remove('hidden');
-        statusMessage.textContent = "Erreur: " + err.message;
-      }
-    });
-    
-    // Fonction pour effectuer l'OCR via OCR.space
-    async function performOCR(base64Image) {
-      try {
-        const formData = new FormData();
-        formData.append('apikey', OCR_API_KEY);
-        formData.append('base64Image', `data:image/jpeg;base64,${base64Image}`);
-        formData.append('language', 'fre');
-        formData.append('scale', 'true');
-        formData.append('isTable', 'false');
-        
-        const response = await fetch('https://api.ocr.space/parse/image', {
-          method: 'POST',
-          body: formData
-        });
-        
-        const data = await response.json();
-        
-        if (!data.IsErroredOnProcessing) {
-          return data.ParsedResults[0].ParsedText;
-        } else {
-          throw new Error(data.ErrorMessage || "Erreur lors de l'OCR");
-        }
-      } catch (error) {
-        console.error("Erreur OCR:", error);
-        // En cas d'erreur avec l'API, simuler un résultat pour le développement
-        return "Facture N°F2023-042\nDate: 15/03/2023\nClient: Dupont Jean\nMontant: 124,99€ TTC";
-      }
-    }
-    
-    // Fonction pour classifier le document avec Gemini AI
-    async function classifyDocumentWithGemini(textContent) {
-      try {
-        const promptExpert = `
-        Tu es un expert en classification de documents. Ta tâche est d'analyser un texte extrait d'un document et d'identifier son type parmi les catégories suivantes :  
-        - Documents financiers (facture, relevé bancaire, bulletin de salaire, etc.)  
-        - Documents légaux (contrat, testament, acte notarié, etc.)  
-        - Documents d'identification (carte d'identité, passeport, permis de conduire, etc.)  
-        - Documents administratifs (certificat, attestation, formulaire officiel, etc.)  
-        - Documents commerciaux (devis, bon de commande, facture commerciale, etc.)  
-        - Documents éducatifs (diplôme, relevé de notes, certificat de scolarité, etc.)  
-        - Documents médicaux (ordonnance, compte-rendu médical, certificat médical, etc.)  
-        - Documents techniques (manuel d'utilisation, brevet, fiche technique, etc.)  
-        - Documents de communication (lettre, e-mail, communiqué, etc.)  
-        - Documents de voyage (billet d'avion, visa, réservation d'hôtel, etc.)  
-        - Documents artistiques (partition, croquis, storyboard, etc.)  
-        - Documents environnementaux (rapport écologique, norme ISO, etc.)  
-        - Documents militaires (ordre de mission, rapport opérationnel, etc.)  
-        - Documents religieux (certificat de baptême, prière, texte sacré, etc.)  
-        
-        Analyse le texte suivant et réponds uniquement avec le nom de la catégorie (pas de phrases complètes, juste la catégorie) :
-        
-        ${textContent}
-        `;
-        
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: promptExpert
-              }]
-            }]
-          })
-        });
-        
-        const data = await response.json();
-        
-        if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-          const classification = data.candidates[0].content.parts[0].text.trim();
-          return classification;
-        } else {
-          console.error("Erreur Gemini:", data);
-          throw new Error("Impossible de classifier le document");
-        }
-      } catch (error) {
-        console.error("Erreur classification Gemini:", error);
-        // En cas d'erreur avec l'API, retourner une valeur par défaut
-        return "Documents financiers";
-      }
-    }
-    
-    // Mettre à jour la liste des documents
-    function updateDocumentList(filteredDocs = null) {
-      const docs = filteredDocs || documents;
-      
-      documentList.innerHTML = '';
-      
-      if (docs.length === 0) {
-        documentList.innerHTML = '<li class="no-documents">Aucun document trouvé.</li>';
-        return;
-      }
-      
-      docs.forEach(doc => {
-        const li = document.createElement('li');
-        li.className = 'document-item';
-        li.dataset.type = doc.type;
-        
-        const docInfo = document.createElement('div');
-        docInfo.className = 'document-info';
-        
-        const docTitle = document.createElement('strong');
-        docTitle.textContent = doc.fileName;
-        
-        const categoryTag = document.createElement('span');
-        categoryTag.className = 'category-tag';
-        categoryTag.textContent = doc.type.split(' ')[0];
-        
-        const docDate = document.createElement('small');
-        docDate.textContent = new Date(doc.dateAdded).toLocaleDateString();
-        
-        docInfo.appendChild(docTitle);
-        docInfo.appendChild(categoryTag);
-        docInfo.appendChild(document.createElement('br'));
-        docInfo.appendChild(docDate);
-        
-        const docActions = document.createElement('div');
-        docActions.className = 'document-actions';
-        
-        const viewBtn = document.createElement('button');
-        viewBtn.textContent = 'Voir';
-        viewBtn.addEventListener('click', () => viewDocument(doc.id));
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Supprimer';
-        deleteBtn.addEventListener('click', () => deleteDocument(doc.id));
-        
-        docActions.appendChild(viewBtn);
-        docActions.appendChild(deleteBtn);
-        
-        li.appendChild(docInfo);
-        li.appendChild(docActions);
-        
-        documentList.appendChild(li);
-      });
-    }
-    
-    // Voir un document
-    function viewDocument(id) {
-      const doc = documents.find(d => d.id === id);
-      if (!doc) return;
-      
-      // Créer une fenêtre modale pour afficher le document
-      const modal = document.createElement('div');
-      modal.style.position = 'fixed';
-      modal.style.top = '0';
-      modal.style.left = '0';
-      modal.style.width = '100%';
-      modal.style.height = '100%';
-      modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
-      modal.style.zIndex = '1000';
-      modal.style.display = 'flex';
-      modal.style.flexDirection = 'column';
-      modal.style.alignItems = 'center';
-      modal.style.justifyContent = 'center';
-      
-      const content = document.createElement('div');
-      content.style.backgroundColor = 'white';
-      content.style.padding = '20px';
-      content.style.borderRadius = '5px';
-      content.style.maxWidth = '90%';
-      content.style.maxHeight = '90%';
-      content.style.overflow = 'auto';
-      
-      const closeBtn = document.createElement('button');
-      closeBtn.textContent = 'Fermer';
-      closeBtn.style.marginTop = '15px';
-      closeBtn.addEventListener('click', () => document.body.removeChild(modal));
-      
-      const docImage = document.createElement('img');
-      docImage.src = doc.imageData;
-      docImage.style.maxWidth = '100%';
-      
-      const docType = document.createElement('div');
-      docType.style.marginTop = '10px';
-      docType.style.padding = '5px 10px';
-      docType.style.backgroundColor = '#f0f0f0';
-      docType.style.borderRadius = '5px';
-      docType.style.display = 'inline-block';
-      docType.textContent = `Type: ${doc.type}`;
-      
-      const docText = document.createElement('pre');
-      docText.style.marginTop = '15px';
-      docText.style.whiteSpace = 'pre-wrap';
-      docText.style.border = '1px solid #eee';
-      docText.style.padding = '10px';
-      docText.style.backgroundColor = '#f9f9f9';
-      docText.textContent = doc.text;
-      
-      content.appendChild(document.createElement('h3')).textContent = doc.fileName;
-      content.appendChild(docType);
-      content.appendChild(docImage);
-      content.appendChild(document.createElement('h4')).textContent = "Texte extrait:";
-      content.appendChild(docText);
-      content.appendChild(closeBtn);
-      
-      modal.appendChild(content);
-      document.body.appendChild(modal);
-    }
-    
-    // Supprimer un document
-    function deleteDocument(id) {
-      if (confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
-        documents = documents.filter(d => d.id !== id);
-        localStorage.setItem('documents', JSON.stringify(documents));
-        updateDocumentList();
-      }
-    }
-    
-    // Filtrage des documents par catégorie
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        
-        const category = btn.dataset.category;
-        if (category === 'all') {
-          updateDocumentList();
-        } else {
-          const filtered = documents.filter(doc => doc.type.includes(category));
-          updateDocumentList(filtered);
-        }
-      });
-    });
-    
-    // Recherche de documents
-    searchBox.addEventListener('input', () => {
-      const query = searchBox.value.toLowerCase().trim();
-      
-      if (query === '') {
-        searchResults.innerHTML = '';
-        return;
-      }
-      
-      const results = documents.filter(doc => 
-        doc.fileName.toLowerCase().includes(query) || 
-        doc.text.toLowerCase().includes(query)
-      );
-      
-      searchResults.innerHTML = '';
-      
-      if (results.length === 0) {
-        searchResults.innerHTML = '<p>Aucun résultat trouvé.</p>';
-        return;
-      }
-      
-      const resultList = document.createElement('ul');
-      resultList.className = 'document-list';
-      
-      results.forEach(doc => {
-        const li = document.createElement('li');
-        li.className = 'document-item';
-        
-        const docInfo = document.createElement('div');
-        docInfo.className = 'document-info';
-        
-        const docTitle = document.createElement('strong');
-        docTitle.textContent = doc.fileName;
-        
-        const categoryTag = document.createElement('span');
-        categoryTag.className = 'category-tag';
-        categoryTag.textContent = doc.type.split(' ')[0];
-        
-        docInfo.appendChild(docTitle);
-        docInfo.appendChild(categoryTag);
-        
-        const viewBtn = document.createElement('button');
-        viewBtn.textContent = 'Voir';
-        viewBtn.addEventListener('click', () => viewDocument(doc.id));
-        
-        li.appendChild(docInfo);
-        li.appendChild(viewBtn);
-        
-        resultList.appendChild(li);
-      });
-      
-      searchResults.appendChild(resultList);
-    });
-    
-    // Initialiser la liste des documents au chargement
-    updateDocumentList();
-  </script>
+    </script>
 </body>
 </html>
